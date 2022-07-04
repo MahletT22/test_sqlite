@@ -1,0 +1,154 @@
+
+2 First, use SELECT * from both tables and use your knowledge of queries and aggregate functions to get to know the data:
+
+-What are the Top 25 schools (.edu domains)?
+   SELECT TOP(25) *
+   FROM users
+   WHERE email_domain LIKE'%.edu'
+
+-How many .edu learners are located in New York?
+   select * from users
+   where city = 'New York'
+-The mobile_app column contains either mobile-user or NULL. How many of these Codecademy learners are using the mobile app?
+   select * from users
+   where mobile_app = 'mobile-user'
+
+
+3 Using this function, query for the sign up counts for each hour.
+
+
+   SELECT sign_up_at,
+      strftime('%H', sign_up_at)
+   FROM users
+   GROUP BY 1
+   LIMIT 20;
+   
+4 Join the two tables using JOIN and then see what you can dig out of the data!
+
+-Do different schools (.edu domains) prefer different courses?
+
+WITH all_dat AS (
+     SELECT * FROM users
+     LEFT JOIN progress
+       ON users.user_id = progress.user_id
+   ),
+   learners AS( 
+     SELECT user_id,
+     CASE
+       WHEN a.learn_cpp = 'completed' OR a.learn_cpp = 'started' THEN 1
+       ELSE 0
+     END AS learns_cpp,
+     CASE
+       WHEN a.learn_sql = 'completed' OR a.learn_sql = 'started' THEN 1
+       ELSE 0
+     END AS learns_sql,
+     CASE
+       WHEN a.learn_html = 'completed' OR a.learn_html = 'started' THEN 1
+       ELSE 0
+     END AS learns_html,
+     CASE
+       WHEN a.learn_javascript = 'completed' OR a.learn_javascript = 'started' THEN 1
+       ELSE 0
+     END AS learns_JS,
+     CASE
+       WHEN a.learn_java = 'completed' OR a.learn_java = 'started' THEN 1
+       ELSE 0
+     END AS learns_java
+     FROM all_dat a
+   ) 
+   SELECT a.email_domain, 
+     SUM(learns_cpp) as cpp, 
+     SUM(learns_sql) as sql, 
+     SUM(learns_html) as html, 
+     SUM(learns_JS) as JS, 
+     SUM(learns_java) as java
+   FROM all_dat a
+   LEFT JOIN learners l
+     ON a.user_id = l.user_id
+   GROUP BY a.email_domain;
+-What courses are the New Yorkers students taking?
+
+  WITH all_dat AS (
+    SELECT * FROM users
+    LEFT JOIN progress
+      ON users.user_id = progress.user_id
+  ),
+  learners AS( 
+    SELECT user_id,
+    CASE
+      WHEN a.learn_cpp = 'completed' OR a.learn_cpp = 'started' THEN 1
+      ELSE 0
+    END AS learns_cpp,
+    CASE
+      WHEN a.learn_sql = 'completed' OR a.learn_sql = 'started' THEN 1
+      ELSE 0
+    END AS learns_sql,
+    CASE
+      WHEN a.learn_html = 'completed' OR a.learn_html = 'started' THEN 1
+      ELSE 0
+    END AS learns_html,
+    CASE
+      WHEN a.learn_javascript = 'completed' OR a.learn_javascript = 'started' THEN 1
+      ELSE 0
+    END AS learns_JS,
+    CASE
+      WHEN a.learn_java = 'completed' OR a.learn_java = 'started' THEN 1
+      ELSE 0
+    END AS learns_java
+    FROM all_dat a
+  ) 
+  SELECT a.email_domain, 
+    SUM(learns_cpp) as cpp, 
+    SUM(learns_sql) as sql, 
+    SUM(learns_html) as html, 
+    SUM(learns_JS) as JS, 
+    SUM(learns_java) as java
+  FROM all_dat a
+  LEFT JOIN learners l
+    ON a.user_id = l.user_id
+  GROUP BY a.email_domain
+  HAVING a.city = 'New York';
+
+-What courses are the Chicago students taking?
+
+WITH all_dat AS (
+  SELECT * FROM users
+  LEFT JOIN progress
+    ON users.user_id = progress.user_id
+),
+learners AS( 
+  SELECT user_id,
+  CASE
+    WHEN a.learn_cpp = 'completed' OR a.learn_cpp = 'started' THEN 1
+    ELSE 0
+  END AS learns_cpp,
+  CASE
+    WHEN a.learn_sql = 'completed' OR a.learn_sql = 'started' THEN 1
+    ELSE 0
+  END AS learns_sql,
+  CASE
+    WHEN a.learn_html = 'completed' OR a.learn_html = 'started' THEN 1
+    ELSE 0
+  END AS learns_html,
+  CASE
+    WHEN a.learn_javascript = 'completed' OR a.learn_javascript = 'started' THEN 1
+    ELSE 0
+  END AS learns_JS,
+  CASE
+    WHEN a.learn_java = 'completed' OR a.learn_java = 'started' THEN 1
+    ELSE 0
+  END AS learns_java
+  FROM all_dat a
+) 
+SELECT a.email_domain, 
+  SUM(learns_cpp) as cpp, 
+  SUM(learns_sql) as sql, 
+  SUM(learns_html) as html, 
+  SUM(learns_JS) as JS, 
+  SUM(learns_java) as java
+FROM all_dat a
+LEFT JOIN learners l
+  ON a.user_id = l.user_id
+GROUP BY a.email_domain
+HAVING a.city = 'Chicago';
+
